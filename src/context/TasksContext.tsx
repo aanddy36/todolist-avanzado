@@ -8,6 +8,10 @@ import { editATask } from "../api/tasks/editATask";
 import { getAllTheTasks } from "../api/tasks/getAllTheTasks";
 import { socket } from "../socket";
 
+const delay = (ms: number) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
 interface TasksContextProps {
   closeModal: () => void;
   isModalOpen: boolean;
@@ -38,10 +42,6 @@ interface TasksProps {
   children: React.ReactNode;
 }
 
-const delay = (ms: number) => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-};
-
 const TasksProvider: React.FC<TasksProps> = ({ children }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -54,11 +54,18 @@ const TasksProvider: React.FC<TasksProps> = ({ children }) => {
     Completed.ALL
   );
 
+  useEffect(() => {
+    const storedTasks = localStorage.getItem("tasks");
+    if (storedTasks) {
+      setTasks(JSON.parse(storedTasks));
+    }
+  }, []);
+
   //USER & ADMIN
   const getTasks = async (page: number = 1, completed?: boolean) => {
     setIsLoadingTask(true);
     try {
-      await delay(1000);
+      await delay(200);
       let data;
       if (user?.role && user.role === AuthOptions.USER) {
         data = await getTasksByUserId(user?.id);
@@ -68,6 +75,7 @@ const TasksProvider: React.FC<TasksProps> = ({ children }) => {
       }
       setTasks(data.tasks as Task[]);
       setCurrentPage(page);
+      localStorage.setItem("tasks", JSON.stringify(data.tasks));
     } catch (error) {
       console.log(error);
     } finally {
@@ -76,9 +84,7 @@ const TasksProvider: React.FC<TasksProps> = ({ children }) => {
   };
 
   const refreshTasks = async () => {
-    await delay(1000);
     let completed: boolean | undefined;
-
     switch (completedFilter) {
       case Completed.YES:
         completed = true;
@@ -97,7 +103,7 @@ const TasksProvider: React.FC<TasksProps> = ({ children }) => {
   const postTask = async (body: { name: string }) => {
     setIsLoadingTask(true);
     try {
-      /* await delay(1000); */
+      await delay(200);
       await createTask(user?.id, body);
       await refreshTasks();
     } catch (error) {
@@ -111,7 +117,7 @@ const TasksProvider: React.FC<TasksProps> = ({ children }) => {
   const deleteTask = async (taskId: number, role: AuthOptions) => {
     setIsLoadingTask(true);
     try {
-      /* await delay(1000); */
+      await delay(200);
       await deleteATask(taskId);
       await refreshTasks();
     } catch (error) {
@@ -128,7 +134,7 @@ const TasksProvider: React.FC<TasksProps> = ({ children }) => {
   ) => {
     setIsLoadingTask(true);
     try {
-      /* await delay(1000); */
+      await delay(200);
       await editATask(taskId, updates);
       await refreshTasks();
     } catch (error) {
@@ -157,11 +163,43 @@ const TasksProvider: React.FC<TasksProps> = ({ children }) => {
     }
   };
 
-  //Reaccionar a los eventos del websocket
+  //función update webSockets
+  const refreshWebSockets = async () => {
+    let completed: boolean | undefined;
+    switch (completedFilter) {
+      case Completed.YES:
+        completed = true;
+        break;
+      case Completed.NO:
+        completed = false;
+        break;
+      default:
+        completed = undefined;
+        break;
+    }
+    try {
+      let data;
+      if (user?.role && user.role === AuthOptions.USER) {
+        data = await getTasksByUserId(user?.id);
+      } else {
+        data = await getAllTheTasks(currentPage, completed);
+        setTotalTasks(data.totalTasks);
+      }
+      setTasks(data.tasks as Task[]);
+      setCurrentPage(currentPage);
+      localStorage.setItem("tasks", JSON.stringify(data.tasks));
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoadingTask(false);
+    }
+  };
+
+  // React to WebSocket events
   useEffect(() => {
-    socket.on("taskUpdated", async () => await refreshTasks());
-    socket.on("taskDeleted", async () => await refreshTasks());
-    socket.on("taskCreated", async () => await refreshTasks());
+    socket.on("taskUpdated", async () => await refreshWebSockets());
+    socket.on("taskDeleted", async () => await refreshWebSockets());
+    socket.on("taskCreated", async () => await refreshWebSockets());
 
     return () => {
       socket.off("taskUpdated");
@@ -203,4 +241,4 @@ const useTasks = () => {
   return context;
 };
 
-export { TasksProvider, useTasks };
+export { TasksProvider, useTasks }; 

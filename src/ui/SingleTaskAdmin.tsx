@@ -5,19 +5,14 @@ import { useAuth } from "../context/AuthContext";
 import { Completed, Task } from "../types";
 import { useTasks } from "../context/TasksContext";
 
-interface Props extends Task {
-  setCompletedFilter: React.Dispatch<React.SetStateAction<Completed>>;
-}
-
-const SingleNoteAdmin: FC<Props> = ({
+const SingleNoteAdmin: FC<Task> = ({
   completed,
   id,
   name,
-  setCompletedFilter,
   user: { email },
 }) => {
   const { isLoading, user } = useAuth();
-  const { isLoadingTask, deleteTask, setCurrentPage } = useTasks();
+  const { isLoadingTask, deleteTask, setCurrentPage, setCompletedFilter } = useTasks();
 
   const handleDelete = () => {
     if (user?.role) {
@@ -48,3 +43,4 @@ const SingleNoteAdmin: FC<Props> = ({
 };
 
 export default SingleNoteAdmin;
+

@@ -1,7 +1,6 @@
 import React from "react";
 import SingleTask from "../ui/SingleTask";
 import SingleTaskAdmin from "../ui/SingleTaskAdmin";
-import { Completed, Task } from "../types";
 import { useTasks } from "../context/TasksContext";
 
 interface AllTasksProps {
@@ -46,11 +45,7 @@ const AllTasksAdmin = () => {
   return (
     <AllTasksBase>
       {tasks.map((task) => (
-        <SingleTaskAdmin
-          key={task.id}
-          {...task}
-          setCompletedFilter={setCompletedFilter}
-        />
+        <SingleTaskAdmin key={task.id} {...task} />
       ))}
     </AllTasksBase>
   );

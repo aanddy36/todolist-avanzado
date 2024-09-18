@@ -1,11 +1,8 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { User } from "../types";
 import { loginUser } from "../api/users/loginUser";
 import { createAnUser } from "../api/users/createAnUser";
-
-const delay = (ms: number) => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-};
+import { checkToken } from "../api/users/checkToken";
 
 interface AuthContextProps {
   login: (email: string, password: string) => Promise<void>;
@@ -26,6 +23,29 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const verifyToken = async () => {
+      const token = localStorage.getItem("token");
+      try {
+        const data = await checkToken({ token });
+
+        if (data.valid) {
+          const { id, email, role } = data.payload;
+          setUser({ id, email, role });
+        } else {
+          localStorage.removeItem("token");
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("Error al verificar el token", error);
+        localStorage.removeItem("token");
+        setUser(null);
+      }
+    };
+
+    verifyToken(); // Llama a la función al montar el componente
+  }, []);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);

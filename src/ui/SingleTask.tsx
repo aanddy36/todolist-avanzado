@@ -6,7 +6,7 @@ import { useTasks } from "../context/TasksContext";
 import { useAuth } from "../context/AuthContext";
 import { AuthOptions, Task } from "../types";
 
-const SingleTask: FC<Task> = ({ completed, id, name }) => {
+const SingleTask: FC<Pick<Task,"completed" | "id" | "name">> = ({ completed, id, name }) => {
   const { openModal, deleteTask, isLoadingTask } = useTasks();
   const { isLoading, user } = useAuth();
 
@@ -28,6 +28,7 @@ const SingleTask: FC<Task> = ({ completed, id, name }) => {
         onClick={() => deleteTask(id, user?.role as AuthOptions)}
         disabled={isLoading || isLoadingTask}
         className="p-2 rounded-md disabled:cursor-not-allowed"
+        aria-label="delete"
       >
         <TrashIcon />
       </button>
