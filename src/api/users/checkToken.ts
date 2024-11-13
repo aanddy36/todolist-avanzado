@@ -1,6 +1,6 @@
 export const checkToken = async ({ token }: { token: string | null }) => {
     try {
-      const response = await fetch("http://localhost:5000/users/checkToken", {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/users/checkToken`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

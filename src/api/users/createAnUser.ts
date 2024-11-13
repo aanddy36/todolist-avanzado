@@ -2,7 +2,7 @@ export const createAnUser = async (data: {
     email: string;
     password: string;
   }) => {
-    const response = await fetch("http://localhost:5000/users/register", {
+    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/users/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

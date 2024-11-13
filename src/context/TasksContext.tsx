@@ -195,7 +195,6 @@ const TasksProvider: React.FC<TasksProps> = ({ children }) => {
     }
   };
 
-  // React to WebSocket events
   useEffect(() => {
     socket.on("taskUpdated", async () => await refreshWebSockets());
     socket.on("taskDeleted", async () => await refreshWebSockets());

@@ -9,7 +9,7 @@ export const editATask = async (
     throw new Error("No se encontró el token o el ID de la tarea.");
   }
 
-  const response = await fetch(`http://localhost:5000/tasks/${taskId}`, {
+  const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/tasks/${taskId}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",

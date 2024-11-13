@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
@@ -12,7 +12,7 @@ interface FormValues {
   password: string;
 }
 
-const Login: React.FC = () => {
+const Login: React.FC = React.memo(() => {
   const {
     register,
     handleSubmit,
@@ -46,7 +46,7 @@ const Login: React.FC = () => {
     ],
     []
   );
-
+  
   return (
     <div className="flex items-center justify-center min-h-screen bg-background-light">
       <div
@@ -84,6 +84,6 @@ const Login: React.FC = () => {
       </div>
     </div>
   );
-};
+});
 
-export default React.memo(Login);
+export default Login;

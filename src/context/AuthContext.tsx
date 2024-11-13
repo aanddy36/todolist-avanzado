@@ -44,7 +44,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     };
 
-    verifyToken(); // Llama a la función al montar el componente
+    verifyToken();
   }, []);
 
   const login = async (email: string, password: string) => {
